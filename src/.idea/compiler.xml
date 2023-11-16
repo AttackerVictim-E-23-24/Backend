@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="enums" />
+        <module name="dao" />
+        <module name="entities" />
+        <module name="implementation" />
+        <module name="dtos" />
+        <module name="utilities" />
+        <module name="command" />
+        <module name="mappers" />
+        <module name="properties" />
+        <module name="exceptions" />
+      </profile>
+    </annotationProcessing>
+  </component>
+</project>

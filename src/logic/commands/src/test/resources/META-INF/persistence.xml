@@ -1,0 +1,69 @@
+<persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+
+    <persistence-unit name="cmcapp-test" transaction-type="RESOURCE_LOCAL">
+        <class>com.ucab.cmcapp.common.entities.Activity</class>
+        <class>com.ucab.cmcapp.common.entities.Answer</class>
+        <class>com.ucab.cmcapp.common.entities.Audience</class>
+        <class>com.ucab.cmcapp.common.entities.AudienceName</class>
+        <class>com.ucab.cmcapp.common.entities.AudienceType</class>
+        <class>com.ucab.cmcapp.common.entities.CheckPoint</class>
+        <class>com.ucab.cmcapp.common.entities.Comment</class>
+        <class>com.ucab.cmcapp.common.entities.Country</class>
+        <class>com.ucab.cmcapp.common.entities.Document</class>
+        <class>com.ucab.cmcapp.common.entities.Event</class>
+        <class>com.ucab.cmcapp.common.entities.Folder</class>
+        <class>com.ucab.cmcapp.common.entities.Gender</class>
+        <class>com.ucab.cmcapp.common.entities.GpsCoordinate</class>
+        <class>com.ucab.cmcapp.common.entities.Hashtag</class>
+        <class>com.ucab.cmcapp.common.entities.Hotline</class>
+        <class>com.ucab.cmcapp.common.entities.Instruction</class>
+        <class>com.ucab.cmcapp.common.entities.LikeIt</class>
+        <class>com.ucab.cmcapp.common.entities.ImageResource</class>
+        <class>com.ucab.cmcapp.common.entities.VideoResource</class>
+        <class>com.ucab.cmcapp.common.entities.Notification</class>
+        <class>com.ucab.cmcapp.common.entities.Onboarding</class>
+        <class>com.ucab.cmcapp.common.entities.Option</class>
+        <class>com.ucab.cmcapp.common.entities.Post</class>
+        <class>com.ucab.cmcapp.common.entities.Profile</class>
+        <class>com.ucab.cmcapp.common.entities.Question</class>
+        <class>com.ucab.cmcapp.common.entities.Quiz</class>
+        <class>com.ucab.cmcapp.common.entities.Relation</class>
+        <class>com.ucab.cmcapp.common.entities.Resource</class>
+        <class>com.ucab.cmcapp.common.entities.Review</class>
+        <class>com.ucab.cmcapp.common.entities.ReviewQuestion</class>
+        <class>com.ucab.cmcapp.common.entities.SelectionAnswer</class>
+        <class>com.ucab.cmcapp.common.entities.Survey</class>
+        <class>com.ucab.cmcapp.common.entities.TermCondition</class>
+        <class>com.ucab.cmcapp.common.entities.TextAnswer</class>
+        <class>com.ucab.cmcapp.common.entities.Question</class>
+        <class>com.ucab.cmcapp.common.entities.Option</class>
+        <class>com.ucab.cmcapp.common.entities.TextResource</class>
+        <class>com.ucab.cmcapp.common.entities.User</class>
+        <class>com.ucab.cmcapp.common.entities.UserType</class>
+        <class>com.ucab.cmcapp.common.entities.Workshop</class>
+        <class>com.ucab.cmcapp.common.entities.Information</class>
+        <class>com.ucab.cmcapp.common.entities.UserActivity</class>
+        <class>com.ucab.cmcapp.common.entities.Binnacle</class>
+        <class>com.ucab.cmcapp.common.entities.BinnacleEvent</class>
+
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/cmcapp"/>
+            <property name="javax.persistence.jdbc.user" value="admin"/>
+            <!--            <property name="javax.persistence.jdbc.password" value="3squ3l3t0"/>-->
+            <property name="javax.persistence.jdbc.password" value="password"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL57Dialect"/>
+            <property name="hibernate.jdbc.time_zone" value="UTC"/>
+            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.format_sql" value="false" />
+
+            <!-- Properties for DROP, CREATING and INSERT data base-->
+            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create" />
+            <property name="hibernate.order_inserts" value="true" />
+            <property name="javax.persistence.sql-load-script-source" value="/inserts.sql" />
+        </properties>
+    </persistence-unit>
+</persistence>

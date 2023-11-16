@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/common/entities/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/entities/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/enums/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/enums/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/exceptions/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/exceptions/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/properties/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/properties/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/utilities/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/utilities/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/logic/commands/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/logic/commands/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/logic/dtos/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/logic/dtos/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/logic/mappers/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/logic/mappers/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/logic/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/logic/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/persistence/dao/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/persistence/dao/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/persistence/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/persistence/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/services/implementation/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/services/implementation/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/services/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/services/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

@@ -1,0 +1,11 @@
+# Project exclude paths
+/src/common/entities/target/
+/src/common/enums/target/
+/src/common/exceptions/target/
+/src/common/properties/target/
+/src/common/utilities/target/
+/src/logic/commands/target/
+/src/logic/dtos/target/
+/src/logic/mappers/target/
+/src/persistence/dao/target/
+/src/services/implementation/target/

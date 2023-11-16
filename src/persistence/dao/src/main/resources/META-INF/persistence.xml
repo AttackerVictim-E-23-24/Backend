@@ -1,0 +1,25 @@
+<persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+
+    <persistence-unit name="cmcapp" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <non-jta-data-source>java:/MySqlDS</non-jta-data-source>
+        <class>com.ucab.cmcapp.common.entities.User</class>
+        <class>com.ucab.cmcapp.common.entities.UserType</class>
+
+        <properties>
+            <property name="hibernate.generate_statistics" value="true"/>
+            <property name="hibernate.connection.handling_mode" value="delayed_acquisition_and_release_after_transaction" />
+            <property name="hibernate.jdbc.batch_size" value="50" />
+            <property name="hibernate.order_inserts" value="true" />
+            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.format_sql" value="false" />
+            <!--Mosca acá con las tres lineas de abajo-->
+            <!--property name="hibernate.hbm2ddl.auto" value="none" /-->
+            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create" />
+         </properties>
+
+    </persistence-unit>
+</persistence>
