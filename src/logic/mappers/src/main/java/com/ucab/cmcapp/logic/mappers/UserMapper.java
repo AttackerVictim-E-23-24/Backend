@@ -3,6 +3,10 @@ package com.ucab.cmcapp.logic.mappers;
 import com.ucab.cmcapp.common.EntityFactory;
 import com.ucab.cmcapp.common.entities.User;
 import com.ucab.cmcapp.logic.dtos.UserDto;
+
+import com.ucab.cmcapp.common.entities.Persona;
+import com.ucab.cmcapp.logic.dtos.PersonaDto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,13 +21,21 @@ public class UserMapper extends BaseMapper
     {
         User entity = EntityFactory.createUser();
 
+        Persona personaEntity = PersonaMapper.mapDtoToEntity( dto.getDatosPersona() );
+
         //region Instrumentation DEBUG
         _logger.debug( "Get in UserMapper.mapDtoToEntity: dto {}", dto );
         //endregion
 
+        if( Objects.nonNull( dto.getId() ) )
+        {
+            entity.setId( dto.getId() );
+        }
+        entity.setUserName( dto.getUserName() );
+        entity.setImei(dto.getImei());
         entity.setEmail( dto.getEmail() );
-        entity.setTermCondition(dto.getTermCondition());
-        entity.setUid( dto.getUid() );
+
+        entity.setDatosPersona( personaEntity );
 
         if ( Objects.nonNull( dto.getUserTypeDto() ) )
         {
@@ -37,17 +49,18 @@ public class UserMapper extends BaseMapper
         return entity;
     }
 
-    public static UserDto mapEntityToDto( User entity )
-    {
+    public static UserDto mapEntityToDto( User entity ) {
         final UserDto dto = new UserDto();
 
         //region Instrumentation DEBUG
-        _logger.debug( "Get in UserMapper.mapEntityToDto: entity {}", entity );
+        _logger.debug("Get in UserMapper.mapEntityToDto: entity {}", entity);
         //endregion
 
-        dto.setId( entity.getId());
-        dto.setEmail(  entity.getEmail() );
-        dto.setUid( entity.getUid() );
+        dto.setId( entity.getId() );
+        dto.setUserName(entity.getUserName());
+        dto.setImei(entity.getImei());
+        dto.setEmail(entity.getEmail());
+        dto.setDatosPersona( PersonaMapper.mapEntityToDto( entity.getDatosPersona() ) );
         if(Objects.nonNull(entity.getUserType()))
             dto.setUserTypeDto( UserTypeMapper.mapEntityToDto( entity.getUserType() ));
 

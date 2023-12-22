@@ -1,72 +1,80 @@
 package com.ucab.cmcapp.logic.dtos;
 
-
 import java.util.List;
 
-public class UserDto extends BaseDto
+public class UserDto
 {
-    private String _uid;
-    private String _email;
-    private String _createAt;
-    private Boolean _termCondition;
-    private UserTypeDto _userType;
+    private Long id;
+    private String userName;
+    private String imei;
 
+    private String password;
+
+    private UserTypeDto userType;
+
+    private String email;
+
+    private PersonaDto datosPersona;
 
     public UserDto()
     {
     }
-
-    public UserDto( long id )
-    {
-        super( id );
-    }
-
     public String getEmail()
     {
-        return _email;
+        return email;
     }
 
     public void setEmail( String email )
     {
-        _email = email;
-    }
-
-    public String getUid()
-    {
-        return _uid;
-    }
-
-    public void setUid( String uid )
-    {
-        _uid = uid;
-    }
-
-    public String getCreateAt()
-    {
-        return _createAt;
-    }
-
-    public void setCreateAt( String createAt )
-    {
-        _createAt = createAt;
-    }
-
-    public Boolean getTermCondition() {
-        return _termCondition;
-    }
-
-    public void setTermCondition(Boolean termCondition) {
-        _termCondition = termCondition;
+        this.email = email;
     }
 
     public UserTypeDto getUserTypeDto()
     {
-        return _userType;
+        return userType;
     }
 
     public void setUserTypeDto( UserTypeDto userType )
     {
-        _userType = userType;
+        this.userType = userType;
     }
 
+    public String getPassword() {
+        return password;
+    }
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public PersonaDto getDatosPersona() {
+        return datosPersona;
+    }
+
+    public void setDatosPersona(PersonaDto datosPersona) {
+        this.datosPersona = datosPersona;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getImei() {
+        return imei;
+    }
+
+    public void setImei(String _imei) {
+        this.imei = _imei;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long _id) {
+        this.id = _id;
+    }
 }
