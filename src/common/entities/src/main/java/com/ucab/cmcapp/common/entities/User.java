@@ -26,10 +26,10 @@ public class User
      */
     public User( User user )
     {
-       _email = user._email;
+        userName = user.userName;
        _createAt = user._createAt;
        _userType = user._userType;
-       _termCondition = user._termCondition;
+       datosPersona = user.datosPersona;
     }
 
     /**
@@ -48,6 +48,13 @@ public class User
     private long _id;
 
     /**
+     * Name:                   user_name
+     * Description:            User's name
+     */
+    @Column( name = "user_name", nullable = false )
+    private String userName;
+
+    /**
      * Name:                   email
      * Description:            User's Email
      */
@@ -62,11 +69,11 @@ public class User
     private String _password;
 
     /**
-     * Name:                   uid
-     * Description:            User's Uid
+     * Name:                   imei
+     * Description:            User's IMEI
      */
-    @Column( name = "uid", nullable = false )
-    private String _uid;
+    @Column( name = "user_imei", nullable = false )
+    private String _imei;
 
     /**
      * Name:                   term_condition
@@ -96,7 +103,17 @@ public class User
     @JoinColumn( name = "user_type_id", nullable = false )
     private UserType _userType;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn( name = "persona_id", nullable = false )
+    private Persona datosPersona;
 
+    public Persona getDatosPersona() {
+        return datosPersona;
+    }
+
+    public void setDatosPersona(Persona datosPersona) {
+        this.datosPersona = datosPersona;
+    }
 
     public long getId()
     {
@@ -127,17 +144,6 @@ public class User
     {
         _password = password;
     }
-
-    public String getUid()
-    {
-        return _uid;
-    }
-
-    public void setUid( String uid )
-    {
-        _uid = uid;
-    }
-
     public Boolean getTermCondition()
     {
         return _termCondition;
@@ -166,6 +172,26 @@ public class User
     public void setUserType(UserType userType)
     {
         _userType = userType;
+    }
+
+    public String getImei()
+    {
+        return _imei;
+    }
+
+    public void setImei(String imei)
+    {
+        _imei = imei;
+    }
+
+    public void setUserName(String userName)
+    {
+        this.userName = userName;
+    }
+
+    public String getUserName()
+    {
+        return userName;
     }
 
 }

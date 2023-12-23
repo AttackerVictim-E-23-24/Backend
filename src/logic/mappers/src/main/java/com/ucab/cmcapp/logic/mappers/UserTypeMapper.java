@@ -19,6 +19,7 @@ public class UserTypeMapper extends BaseMapper
         //endregion
 
         entity.setName( dto.getName() );
+        entity.setId( dto.getId() );
 
         //region Instrumentation DEBUG
         _logger.debug( "Leaving UserMapper.mapDtoToEntity: entity {}", entity );

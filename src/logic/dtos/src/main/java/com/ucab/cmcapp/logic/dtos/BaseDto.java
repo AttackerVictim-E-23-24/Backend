@@ -4,13 +4,12 @@ import com.ucab.cmcapp.common.exceptions.BadIdException;
 
 public abstract class BaseDto
 {
-    private long _id;
+    private long _id;  //Al final no se usa pero se deja como referencia
 
-
-    public BaseDto( long id )
-    {
-        setId( id );
+    public BaseDto( long _id){
+        setId( _id );
     }
+
 
     public BaseDto()
     {
@@ -32,4 +31,23 @@ public abstract class BaseDto
             throw new BadIdException( Long.toString( _id ) );
         }
     }
+
+    /*
+    public void setUserName( String userName )
+    {
+        if ( userName != null )
+        {
+            this.userName = userName;
+        }
+    }
+
+
+
+    public String getUserName()
+    {
+        return userName;
+    }
+
+    */
+
 }
