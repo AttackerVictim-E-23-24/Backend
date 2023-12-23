@@ -116,7 +116,7 @@ public class LDAP {
             env.put(Context.SECURITY_PRINCIPAL, "cn="+username+",ou=users,ou=system");  //check the DN correctly
             env.put(Context.SECURITY_CREDENTIALS, password);
             DirContext con = new InitialDirContext(env);
-            System.out.println("success");
+            //System.out.println("success");
             con.close();
             return true;
         }catch (Exception e) {
