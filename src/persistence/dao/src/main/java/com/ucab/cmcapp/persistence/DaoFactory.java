@@ -19,4 +19,16 @@ public class DaoFactory
     public static MailCodeDao createMailCodeDao( DBHandler handler ) {
         return new MailCodeDao( handler );
     }
+
+    public static MonitoreoElectronicoDao createMonitoreoElectronicoDao( DBHandler handler ) {
+        return new MonitoreoElectronicoDao( handler );
+    }
+
+    public static ZonaDeSeguridadDao createZonaDeSeguridadDao( DBHandler handler ) {
+        return new ZonaDeSeguridadDao( handler );
+    }
+
+    public static CoordenadaDao createCoordenadaDao( DBHandler handler ) {
+        return new CoordenadaDao( handler );
+    }
 }

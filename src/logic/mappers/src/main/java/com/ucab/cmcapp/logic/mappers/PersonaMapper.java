@@ -2,6 +2,7 @@ package com.ucab.cmcapp.logic.mappers;
 
 import com.ucab.cmcapp.common.EntityFactory;
 import com.ucab.cmcapp.common.entities.Persona;
+import com.ucab.cmcapp.common.entities.User;
 import com.ucab.cmcapp.logic.dtos.PersonaDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,5 +55,21 @@ public class PersonaMapper extends BaseMapper{
         return dto;
     }
 
+    public static Persona mapDtoToEntityCedula(long cedula)
+    {
+        Persona entity = EntityFactory.createPersona();
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Get in PersonaMapper.mapDtoToEntityCedula: cedula {}", cedula );
+        //endregion
+
+        entity.setCedula( cedula );
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Leaving PersonaMapper.mapDtoToEntityCedula: entity {}", entity );
+        //endregion
+
+        return entity;
+    }
 
 }
