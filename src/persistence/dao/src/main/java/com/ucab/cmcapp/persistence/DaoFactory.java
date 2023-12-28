@@ -11,4 +11,24 @@ public class DaoFactory
         return new UserDao( handler );
     }
 
+    public static PersonaDao createPersonaDao( DBHandler handler )
+    {
+        return new PersonaDao( handler );
+    }
+
+    public static MailCodeDao createMailCodeDao( DBHandler handler ) {
+        return new MailCodeDao( handler );
+    }
+
+    public static MonitoreoElectronicoDao createMonitoreoElectronicoDao( DBHandler handler ) {
+        return new MonitoreoElectronicoDao( handler );
+    }
+
+    public static ZonaDeSeguridadDao createZonaDeSeguridadDao( DBHandler handler ) {
+        return new ZonaDeSeguridadDao( handler );
+    }
+
+    public static CoordenadaDao createCoordenadaDao( DBHandler handler ) {
+        return new CoordenadaDao( handler );
+    }
 }
