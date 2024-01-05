@@ -14,6 +14,8 @@ public class Coordenada {
         latitud = coordenada.latitud;
         longitud = coordenada.longitud;
         _createAt = coordenada._createAt;
+        zonaSeg = coordenada.zonaSeg;
+        usuario = coordenada.usuario;
     }
 
     public Coordenada (double latitud, double longitud) {
@@ -38,13 +40,17 @@ public class Coordenada {
 
     @Basic(optional = false)
     @Column(name = "created_at", columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-            insertable = false, updatable = false, nullable = false)
+            insertable = true, updatable = false, nullable = false)
     @Temporal( TemporalType.TIMESTAMP)
     private Date _createAt;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JoinColumn( name = "zona_seguridad_id", nullable = true )
-    private UserType zonaSegId;
+    private ZonaDeSeguridad zonaSeg;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn( name = "usuario_id", nullable = true )
+    private User usuario;
 
     public long get_id() {
         return _id;
@@ -76,5 +82,21 @@ public class Coordenada {
 
     public void set_createAt(Date _createAt) {
         this._createAt = _createAt;
+    }
+
+    public ZonaDeSeguridad getZonaSeg() {
+        return zonaSeg;
+    }
+
+    public void setZonaSeg(ZonaDeSeguridad zonaSeg) {
+        this.zonaSeg = zonaSeg;
+    }
+
+    public User getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(User usuario) {
+        this.usuario = usuario;
     }
 }

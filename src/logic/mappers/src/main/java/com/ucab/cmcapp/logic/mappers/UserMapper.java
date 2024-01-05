@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class UserMapper extends BaseMapper
@@ -102,6 +104,51 @@ public class UserMapper extends BaseMapper
         //endregion
 
         return entity;
+    }
+
+    public static User mapDtoToEntityUsername( String username)
+    {
+        User entity = EntityFactory.createUser();
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Get in UserMapper.mapDtoToEntityUsername: username {}", username );
+        //endregion
+
+        entity.setUserName( username );
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Leaving UserMapper.mapDtoToEntityUsername: entity {}", entity );
+        //endregion
+
+        return entity;
+    }
+
+    public static List<UserDto> mapEntityToDto(List<User> entities) {
+
+        final List<UserDto> dtos = new ArrayList<>(); // Create a list to store UserDto objects
+
+        //region Instrumentation DEBUG
+        _logger.debug("Get in UserMapper.mapEntityToDto: entities {}", entities);
+        //endregion
+
+        for (User entity : entities) {
+            UserDto dto = new UserDto();
+            dto.setId(entity.getId());
+            dto.setUserName(entity.getUserName());
+            dto.setImei(entity.getImei());
+            dto.setEmail(entity.getEmail());
+            dto.setDatosPersona(PersonaMapper.mapEntityToDto(entity.getDatosPersona()));
+            if (Objects.nonNull(entity.getUserType())) {
+                dto.setUserTypeDto(UserTypeMapper.mapEntityToDto(entity.getUserType()));
+            }
+            dtos.add(dto); // Add the mapped UserDto object to the list
+        }
+
+        //region Instrumentation DEBUG
+        _logger.debug("Leaving UserMapper.mapEntityToDto: dtos {}", dtos);
+        //endregion
+
+        return dtos;
     }
 
 }

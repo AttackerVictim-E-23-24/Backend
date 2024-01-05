@@ -127,7 +127,7 @@ public abstract class BaseDao<T>
     public T delete( T entity )
     {
         setEntityManager( _dbHandler.getSession() );
-        //implementar logger
+        _logger.debug( "Get in BaseDao.delete: " +entity.toString() );
         try
         {
             getEntityManager().remove( entity );
@@ -139,7 +139,7 @@ public abstract class BaseDao<T>
             throw new DeleteException( e.getMessage() + "Entity: " + entity.toString() );
         }
 
-        //implementar logger
+        _logger.debug( "Leaving BaseDao.delete");
         return entity;
     }
 

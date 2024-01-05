@@ -1,23 +1,20 @@
 package com.ucab.cmcapp.logic.commands.monitoreo_electronico.atomic;
 
 import com.ucab.cmcapp.common.entities.MonitoreoElectronico;
-import com.ucab.cmcapp.common.entities.Persona;
 import com.ucab.cmcapp.logic.commands.Command;
-import com.ucab.cmcapp.logic.commands.persona.atomic.GetPersonaByCedulaCommand;
 import com.ucab.cmcapp.persistence.DBHandler;
 import com.ucab.cmcapp.persistence.DaoFactory;
 import com.ucab.cmcapp.persistence.dao.MonitoreoElectronicoDao;
-import com.ucab.cmcapp.persistence.dao.PersonaDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GetMonitoreoByCedulaCommand extends Command<MonitoreoElectronico> {
+public class GetMonitoreoByCedulaNombreUsuarioCommand extends Command<MonitoreoElectronico> {
 
-    private static Logger _logger = LoggerFactory.getLogger( GetMonitoreoByCedulaCommand.class );
+    private static Logger _logger = LoggerFactory.getLogger( GetMonitoreoByCedulaNombreUsuarioCommand.class );
     private MonitoreoElectronico _monitoreo;
     private MonitoreoElectronicoDao _dao;
 
-    public GetMonitoreoByCedulaCommand(MonitoreoElectronico monitoreoElectronico )
+    public GetMonitoreoByCedulaNombreUsuarioCommand (MonitoreoElectronico monitoreoElectronico )
     {
         //region Instrumentation DEBUG
         _logger.debug( String.format( "Get in GetMonitoreoByCedulaCommand.ctor: parameter {%s}", monitoreoElectronico.toString() ) );
@@ -30,7 +27,7 @@ public class GetMonitoreoByCedulaCommand extends Command<MonitoreoElectronico> {
         //endregion
     }
 
-    public GetMonitoreoByCedulaCommand(MonitoreoElectronico monitoreoElectronico, DBHandler handler )
+    public GetMonitoreoByCedulaNombreUsuarioCommand (MonitoreoElectronico monitoreoElectronico, DBHandler handler )
     {
         //region Instrumentation DEBUG
         _logger.debug( String.format( "Get in GetMonitoreoByCedulaCommand.ctor: parameter {%s}", monitoreoElectronico.toString() ) );
@@ -47,9 +44,9 @@ public class GetMonitoreoByCedulaCommand extends Command<MonitoreoElectronico> {
     public void execute()
     {
         //region Instrumentation DEBUG
-        _logger.debug( "Get in GetMonitoreoByCedulaCommand. execute" );
+        _logger.debug( "Get in  GetMonitoreoByCedulaCommand. execute" );
         //endregion
-        _monitoreo= _dao.getMonitoreoByCedula(_monitoreo.getCedulaAtacante(), _monitoreo.getCedulaVictima());
+        _monitoreo= _dao.getMonitoreoByCedulaNombreUsuario(_monitoreo.getCedulaAtacante());
         //region Instrumentation DEBUG
         _logger.debug( "Leavin  GetPersonaByCedulaCommand.execute" );
         //endregion
@@ -66,5 +63,4 @@ public class GetMonitoreoByCedulaCommand extends Command<MonitoreoElectronico> {
     {
         getHandler().closeSession();
     }
-
 }

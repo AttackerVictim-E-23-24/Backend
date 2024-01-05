@@ -1,5 +1,6 @@
 package com.ucab.cmcapp.logic.dtos;
 
+import javax.xml.registry.infomodel.User;
 import java.util.Date;
 
 public class CoordenadaDto {
@@ -10,6 +11,10 @@ public class CoordenadaDto {
     private Double longitud;
 
     private Date createdAt;
+
+    private UserDto usuarioDto;
+
+    private ZonaDeSeguridadDto zonaSegDto;
 
     public CoordenadaDto(){
 
@@ -47,4 +52,19 @@ public class CoordenadaDto {
         this.createdAt = createdAt;
     }
 
+    public UserDto getUsuarioDto() {
+        return usuarioDto;
+    }
+
+    public void setUsuarioDto(UserDto usuarioDto) {
+        this.usuarioDto = usuarioDto;
+    }
+
+    public ZonaDeSeguridadDto getZonaSegDto() {
+        return zonaSegDto;
+    }
+
+    public void setZonaSegDto(ZonaDeSeguridadDto zonaSegDto) {
+        this.zonaSegDto = zonaSegDto;
+    }
 }

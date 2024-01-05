@@ -65,4 +65,37 @@ public class MonitoreoElectronicoDao extends BaseDao<MonitoreoElectronico> {
 
         return result;
     }
+
+    public MonitoreoElectronico getMonitoreoByCedulaNombreUsuario(long cedula) {
+        MonitoreoElectronico result = EntityFactory.createMonitoreoElectronico();
+
+        _logger.debug(String.format("Get in MonitoreoDao.getMonitoreoByCedula: parameter cedula {%s}", cedula));
+
+        try {
+            CriteriaBuilder builder = _em.getCriteriaBuilder();
+            CriteriaQuery<MonitoreoElectronico> query = builder.createQuery(MonitoreoElectronico.class);
+            Root<MonitoreoElectronico> root = query.from(MonitoreoElectronico.class);
+
+            query.select(root);
+
+            // Create a single predicate matching cedula in both cedulaAtacante and cedulaVictima
+            Predicate cedulaPredicate = builder.or(
+                    builder.equal(root.get("cedulaAtacante"), cedula),
+                    builder.equal(root.get("cedulaVictima"), cedula)
+            );
+
+            query.where(cedulaPredicate);
+
+            result = _em.createQuery(query).getSingleResult();
+        } catch (NoResultException e) {
+            _logger.error(String.format("Error MonitoreoDao.getMonitoreoByCedula: No Result {%s}", e.getMessage()));
+        } catch (Exception e) {
+            _logger.error(String.format("Error MonitoreoDao.getMonitoreoByCedula: {%s}", e.getMessage()));
+            throw new CupraException(e.getMessage());
+        }
+
+        _logger.debug(String.format("Leaving MonitoreoDao.getMonitoreoByCedula: result {%s}", result));
+
+        return result;
+    }
 }
