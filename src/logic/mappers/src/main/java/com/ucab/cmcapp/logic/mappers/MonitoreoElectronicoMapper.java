@@ -100,6 +100,21 @@ public class MonitoreoElectronicoMapper extends BaseMapper{
         return entity;
     }
 
+    public static MonitoreoElectronico mapDtoToEntityByCedulaNombreUsuario(long cedulaAtacante) throws ParseException {
 
+        MonitoreoElectronico entity = EntityFactory.createMonitoreoElectronico();
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Get in MonitoreoElectronicoMapper.mapDtoToEntity: cedula atacante o victima{}", cedulaAtacante);
+        //endregion
+
+        entity.setCedulaAtacante( cedulaAtacante );
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Leaving MonitoreoElectronicoMapper.mapDtoToEntity: entity {}", entity );
+        //endregion
+
+        return entity;
+    }
 
 }

@@ -5,16 +5,23 @@ import com.ucab.cmcapp.common.entities.*;
 
 import com.ucab.cmcapp.common.util.GmailCodes;
 import com.ucab.cmcapp.common.util.LDAP;
+import com.ucab.cmcapp.common.util.ServiceResponse;
 import com.ucab.cmcapp.logic.commands.CommandFactory;
+import com.ucab.cmcapp.logic.commands.coordenada.atomic.GetCoordenadaByUsernameIdCommand;
+import com.ucab.cmcapp.logic.commands.coordenada.composite.CreateCoordenadaCommand;
 import com.ucab.cmcapp.logic.commands.mailcode.atomic.GetMailCodeByCodeCommand;
 import com.ucab.cmcapp.logic.commands.mailcode.composite.CreateMailCodeCommand;
 import com.ucab.cmcapp.logic.commands.user.atomic.GetUserByEmailCommand;
+import com.ucab.cmcapp.logic.commands.user.atomic.GetUserByUsernameCommand;
 import com.ucab.cmcapp.logic.commands.user.composite.CreateUserCommand;
+import com.ucab.cmcapp.logic.commands.user.composite.GetAllUsersCommand;
 import com.ucab.cmcapp.logic.commands.user.composite.GetUserCommand;
 
+import com.ucab.cmcapp.logic.dtos.CoordenadaDto;
 import com.ucab.cmcapp.logic.dtos.MailCodeDto;
 import com.ucab.cmcapp.logic.dtos.UserDto;
 
+import com.ucab.cmcapp.logic.mappers.CoordenadaMapper;
 import com.ucab.cmcapp.logic.mappers.MailCodeMapper;
 import com.ucab.cmcapp.logic.mappers.UserMapper;
 
@@ -32,6 +39,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @Path( "/users" )
 @Produces( MediaType.APPLICATION_JSON )
@@ -75,6 +85,50 @@ public class UserService extends BaseService
         return response;
     }
 
+    @GET
+    @Path( "/getAll" )
+    public ServiceResponse getAllUsers() {
+
+        ServiceResponse serviceResponse = new ServiceResponse();
+        serviceResponse.setStatus(false);
+        serviceResponse.setMensaje("No se podido obtener la lista de usuarios");
+
+        List<UserDto> response;
+
+        GetAllUsersCommand command = null;
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Get in UserService.getAllUsers" );
+        //endregion
+
+        try
+        {
+            command = CommandFactory.createGetAllUsersCommand();
+            command.execute();
+            response = UserMapper.mapEntityToDto( command.getReturnParam() );
+
+            serviceResponse.setStatus(true);
+            serviceResponse.setRespuesta(response);
+            serviceResponse.setMensaje("Se obtuvo la lista de usuarios");
+
+            _logger.info( "Response getAllUsers: {} ", response );
+        }
+        catch ( Exception e )
+        {
+            _logger.error("error {} getting all users {}: {}", e.getMessage(), "getAll", e.getCause());
+            throw new WebApplicationException( Response.status( Response.Status.INTERNAL_SERVER_ERROR ).
+                    entity( e ).build() );
+        }
+        finally
+        {
+            if (command != null)
+                command.closeHandlerSession();
+        }
+
+        _logger.debug( "Leaving UserService.getAllUsers" );
+
+        return serviceResponse;
+    }
 
     @GET
     @Path( "email/{email}" )
@@ -111,11 +165,52 @@ public class UserService extends BaseService
         return response;
     }
 
+    @GET
+    @Path( "username/{username}" )
+    public UserDto getUserByUsername(@PathParam( "username" ) String username )
+    {
+        User entity;
+        UserDto response;
+        GetUserByUsernameCommand command = null;
+        //region Instrumentation DEBUG
+        _logger.debug( "Get in UserService.getUser" );
+        //endregion
+
+        try
+        {
+            entity = UserMapper.mapDtoToEntityUsername( username );
+            command = CommandFactory.createGetUserByUsernameCommand( entity );
+            command.execute();
+            response = UserMapper.mapEntityToDto( command.getReturnParam() );
+            _logger.info( "Response getUser: {} ", response );
+        }
+        catch ( Exception e )
+        {
+            _logger.error("error {} getting user {}: {}", e.getMessage(), username, e.getCause());
+            throw new WebApplicationException( Response.status( Response.Status.INTERNAL_SERVER_ERROR ).
+                    entity( e ).build() );
+        }
+        finally
+        {
+            if (command != null)
+                command.closeHandlerSession();
+        }
+
+        _logger.debug( "Leaving UserService.getUser" );
+        return response;
+    }
+
     @POST
     @Path( "/setUser" )
     @Consumes(MediaType.APPLICATION_JSON)
-    public UserDto addUser(UserDto userDto)
+    public ServiceResponse addUser(UserDto userDto)
     {
+
+        ServiceResponse serviceResponse = new ServiceResponse();
+        serviceResponse.setStatus(false);
+        serviceResponse.setRespuesta(null);
+        serviceResponse.setMensaje("No se ha podido registrar el usuario");
+
         User entity;
         UserDto response;
         CreateUserCommand command = null;
@@ -136,6 +231,10 @@ public class UserService extends BaseService
             command = CommandFactory.createCreateUserCommand( entity );
             command.execute();
             response = UserMapper.mapEntityToDto( command.getReturnParam() );
+
+            serviceResponse.setStatus(true);
+            serviceResponse.setRespuesta(response);
+            serviceResponse.setMensaje("Se ha registrado el correctamente");
             _logger.info( "Response addUser: {} ", response );
 
             LDAP ldap = new LDAP();
@@ -155,7 +254,7 @@ public class UserService extends BaseService
         }
 
         _logger.debug( "Leaving UserService.addUser" );
-        return response;
+        return serviceResponse;
     }
 
     @GET
@@ -305,5 +404,121 @@ public class UserService extends BaseService
 
     }
 
+
+    @POST
+    @Path( "/setGeolocationUser" )
+    public ServiceResponse addLocalizacion(ArrayList<CoordenadaDto> listDeCoordenadas)
+    {
+
+        ServiceResponse serviceResponse = new ServiceResponse();
+
+        ArrayList<CoordenadaDto> coordenadasAgregadas = new ArrayList<CoordenadaDto>();
+
+        Coordenada entity;
+        CoordenadaDto response;
+        CreateCoordenadaCommand command = null;
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Get in UserService.addLozalizacion - Zona de Seguridad o Usuario" );
+        //endregion
+
+        //Recorro el Array de Coordenadas y las registro en el determinado usuario
+
+        for (CoordenadaDto coordenada : listDeCoordenadas){
+
+                //La coordenada corresponde a un usuario
+
+                try
+                {
+                        _logger.debug( "Get in UserService.addLozalizacion - Coordenada de Usuario" );
+                        UserDto user = getUserByUsername( coordenada.getUsuarioDto().getUserName() );
+                        coordenada.setUsuarioDto( user );
+                        entity = CoordenadaMapper.mapDtoToEntity( coordenada );
+                        command = CommandFactory.createCreateCoordenadaCommand( entity );
+                        command.execute();
+                        response = CoordenadaMapper.mapEntityToDto( command.getReturnParam() );
+
+                        coordenadasAgregadas.add( response );
+
+                        serviceResponse.setRespuesta( coordenadasAgregadas );
+                        serviceResponse.setStatus(true); //Todo correcto
+                        serviceResponse.setMensaje("Se ha registrado la ubicacion del usuario");
+
+                    _logger.info( "Response addCoordenada Usuario: {} ", response );
+
+                }
+                catch ( Exception e )
+                {
+                    _logger.error("error {} adding coordenada usuario: {}", e.getMessage(), e.getCause());
+                    serviceResponse.setStatus(false);
+                    serviceResponse.setMensaje("Error al registrar la ubicacion del usuario");
+                    throw new WebApplicationException( Response.status( Response.Status.INTERNAL_SERVER_ERROR ).
+                            entity( e ).build() );
+                }
+                finally
+                {
+                    if (command != null)
+                        command.closeHandlerSession();
+                }
+
+        }
+
+        _logger.debug( "Leaving UserService.addLozalizacion - Zona de Seguridad o Usuario" );
+        return serviceResponse;
+    }
+
+    @GET
+    @Path( "getGeolocation/{nombreUsuario}" )
+    public ServiceResponse getGoeolocationOfUser(@PathParam( "nombreUsuario" ) String nombreUsuario )
+    {
+
+        ServiceResponse serviceResponse = new ServiceResponse();
+        serviceResponse.setStatus(false);
+        serviceResponse.setMensaje("No se ha podido recuperar la ubicacion del usuario");
+
+        CoordenadaDto coordenadaDto = new CoordenadaDto();
+        Coordenada entity;
+        CoordenadaDto response;
+        GetCoordenadaByUsernameIdCommand command = null;
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Get in UserService.getGoeolocationOfUser" );
+        //endregion
+
+        try
+        {
+            // Primero obtengo el usuario al cual esta asociado la coordenada por su nombre de usuario
+            UserDto user = getUserByUsername( nombreUsuario );
+            coordenadaDto.setUsuarioDto( user );
+
+            //Buscamos aquella coordenada correspondiente
+
+            entity = CoordenadaMapper.mapDtoToEntityByUser( user );
+            command = CommandFactory.createGetCoordenadaByUsernameIdCommand( entity );
+            command.execute();
+            response = CoordenadaMapper.mapEntityToDto( command.getReturnParam() );
+
+            serviceResponse.setStatus(true);
+            serviceResponse.setRespuesta( response );
+            serviceResponse.setMensaje("Se ha recuperado la ubicacion del usuario");
+
+            _logger.info( "Response getCoordenadaByUsername: {} ", response );
+        }
+        catch ( Exception e )
+        {
+            _logger.error("error {} getting coordenada by username {}: {}", e.getMessage(), nombreUsuario, e.getCause());
+            throw new WebApplicationException( Response.status( Response.Status.INTERNAL_SERVER_ERROR ).
+                    entity( e ).build() );
+        }
+        finally
+        {
+            if (command != null)
+                command.closeHandlerSession();
+        }
+
+        _logger.debug( "Leaving UserService.getGoeolocationOfUser" );
+
+        return serviceResponse;
+    }
 
 }

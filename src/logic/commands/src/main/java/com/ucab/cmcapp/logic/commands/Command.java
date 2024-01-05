@@ -20,7 +20,7 @@ public abstract class Command<T>
 
     public abstract void execute() throws IOException;
 
-    public abstract T getReturnParam();
+    public abstract Object getReturnParam();
 
     public abstract void closeHandlerSession();
 

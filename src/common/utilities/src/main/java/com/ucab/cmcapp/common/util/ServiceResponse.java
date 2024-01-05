@@ -1,4 +1,4 @@
-package com.ucab.cmcapp.common.entities;
+package com.ucab.cmcapp.common.util;
 
 public class ServiceResponse <T> {
     private T respuesta;
