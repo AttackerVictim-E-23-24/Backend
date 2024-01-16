@@ -12,6 +12,8 @@
         <class>com.ucab.cmcapp.common.entities.MonitoreoElectronico</class>
         <class>com.ucab.cmcapp.common.entities.ZonaDeSeguridad</class>
         <class>com.ucab.cmcapp.common.entities.Coordenada</class>
+        <class>com.ucab.cmcapp.common.entities.HistoricoMovimiento</class>
+        <class>com.ucab.cmcapp.common.entities.Alerta</class>
 
         <properties>
             <property name="hibernate.generate_statistics" value="true"/>

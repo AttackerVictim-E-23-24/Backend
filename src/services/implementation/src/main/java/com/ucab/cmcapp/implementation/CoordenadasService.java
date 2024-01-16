@@ -31,7 +31,6 @@ public class CoordenadasService extends BaseService{
         ServiceResponse serviceResponse = new ServiceResponse();
         serviceResponse.setStatus(false);
         serviceResponse.setMensaje("No se podido obtener la lista de coordenadas de la zona de seguridad");
-
         List<CoordenadaDto> response;
 
         GetCoordenadasZonaCommand command = null;
@@ -169,6 +168,8 @@ public class CoordenadasService extends BaseService{
         return serviceResponse;
 
     }
+
+
 
 
 

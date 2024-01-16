@@ -53,7 +53,7 @@ public class DelZonaDeSeguridadCommand extends Command<ZonaDeSeguridad> {
         _logger.debug( "Get in  DelZonaDeSeguridadCommand.execute" );
         //endregion
 
-        _zonaDeSeguridad = _dao.delete( _zonaDeSeguridad);
+        _zonaDeSeguridad = _dao.update( _zonaDeSeguridad);
 
         //region Instrumentation DEBUG
         _logger.debug( "Get in  DelZonaDeSeguridadCommand.execute" );
