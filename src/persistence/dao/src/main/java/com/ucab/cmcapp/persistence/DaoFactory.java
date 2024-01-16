@@ -31,4 +31,12 @@ public class DaoFactory
     public static CoordenadaDao createCoordenadaDao( DBHandler handler ) {
         return new CoordenadaDao( handler );
     }
+
+    public static HistoricoMovimientoDao createHistoricoMovimientoDao( DBHandler handler ) {
+        return new HistoricoMovimientoDao( handler );
+    }
+    public static AlertaDao createAlertaDao( DBHandler handler ) {
+        return new AlertaDao( handler );
+    }
+
 }

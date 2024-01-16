@@ -3,30 +3,32 @@ package com.ucab.cmcapp.logic.commands;
 import com.ucab.cmcapp.common.entities.*;
 import com.ucab.cmcapp.logic.commands.coordenada.atomic.*;
 import com.ucab.cmcapp.logic.commands.coordenada.composite.CreateCoordenadaCommand;
+import com.ucab.cmcapp.logic.commands.coordenada.composite.GetAllCoordenadasByUsernameCommand;
 import com.ucab.cmcapp.logic.commands.coordenada.composite.GetCoordenadasZonaCommand;
 import com.ucab.cmcapp.logic.commands.coordenada.composite.UpdateCoordenadaCommand;
+import com.ucab.cmcapp.logic.commands.historico_movimiento.atomic.AddHistoricoCommand;
+import com.ucab.cmcapp.logic.commands.historico_movimiento.atomic.GetAllMovimientoBUserCommand;
+import com.ucab.cmcapp.logic.commands.historico_movimiento.composite.CreateHistoricoCommand;
+import com.ucab.cmcapp.logic.commands.historico_movimiento.composite.GetAllMovimientoByUsernameCommand;
 import com.ucab.cmcapp.logic.commands.mailcode.atomic.AddMailCodeCommand;
 import com.ucab.cmcapp.logic.commands.mailcode.atomic.GetMailCodeByCodeCommand;
 import com.ucab.cmcapp.logic.commands.mailcode.composite.CreateMailCodeCommand;
-import com.ucab.cmcapp.logic.commands.monitoreo_electronico.atomic.AddMonitoreoElectronicoCommand;
-import com.ucab.cmcapp.logic.commands.monitoreo_electronico.atomic.GetMonitoreoByCedulaCommand;
-import com.ucab.cmcapp.logic.commands.monitoreo_electronico.atomic.GetMonitoreoByCedulaNombreUsuarioCommand;
+import com.ucab.cmcapp.logic.commands.monitoreo_electronico.atomic.*;
 import com.ucab.cmcapp.logic.commands.monitoreo_electronico.composite.CreateMonitoreoElectronicoCommand;
+import com.ucab.cmcapp.logic.commands.monitoreo_electronico.composite.DeleteMonitoreoCommand;
+import com.ucab.cmcapp.logic.commands.monitoreo_electronico.composite.UpdateMonitoreoCommand;
 import com.ucab.cmcapp.logic.commands.persona.atomic.AddPersonaCommand;
 import com.ucab.cmcapp.logic.commands.persona.atomic.GetPersonaByCedulaCommand;
+import com.ucab.cmcapp.logic.commands.persona.atomic.PutPersonaCommand;
 import com.ucab.cmcapp.logic.commands.persona.composite.CreatePersonaCommand;
+import com.ucab.cmcapp.logic.commands.persona.composite.UpdatePersonaCommand;
 import com.ucab.cmcapp.logic.commands.user.atomic.*;
 import com.ucab.cmcapp.logic.commands.user.composite.CreateUserCommand;
 import com.ucab.cmcapp.logic.commands.user.composite.GetAllUsersCommand;
 import com.ucab.cmcapp.logic.commands.user.composite.GetUserCommand;
-import com.ucab.cmcapp.logic.commands.zona_seguridad.atomic.AddZonaDeSeguridadCommand;
-import com.ucab.cmcapp.logic.commands.zona_seguridad.atomic.DelZonaDeSeguridadCommand;
-import com.ucab.cmcapp.logic.commands.zona_seguridad.atomic.GetAllZonasWPCommand;
-import com.ucab.cmcapp.logic.commands.zona_seguridad.atomic.GetZonaByIdCommand;
-import com.ucab.cmcapp.logic.commands.zona_seguridad.composite.CreateZonaDeSeguridadCommand;
-import com.ucab.cmcapp.logic.commands.zona_seguridad.composite.DeleteZonaDeSeguridadCommand;
-import com.ucab.cmcapp.logic.commands.zona_seguridad.composite.GetAllZonasCommand;
-import com.ucab.cmcapp.logic.commands.zona_seguridad.composite.GetZonaCommand;
+import com.ucab.cmcapp.logic.commands.user.composite.UpdateUserCommand;
+import com.ucab.cmcapp.logic.commands.zona_seguridad.atomic.*;
+import com.ucab.cmcapp.logic.commands.zona_seguridad.composite.*;
 import com.ucab.cmcapp.persistence.DBHandler;
 
 public class CommandFactory {
@@ -79,6 +81,12 @@ public class CommandFactory {
         return new AddPersonaCommand(persona);
     }
 
+    public static UpdatePersonaCommand createUpdatePersonaCommand(Persona persona) {
+        return new UpdatePersonaCommand(persona);
+    }
+    public static PutPersonaCommand createPutPersonaCommand(Persona persona, DBHandler handler) {
+        return new PutPersonaCommand(persona, handler);
+    }
     public static CreatePersonaCommand createCreatePersonaCommand(Persona persona) {
         return new CreatePersonaCommand(persona);
     }
@@ -115,6 +123,22 @@ public class CommandFactory {
         return new GetMonitoreoByCedulaNombreUsuarioCommand(monitoreoElectronico);
     }
 
+    public static UpdateMonitoreoCommand createUpdateMonitoreoCommand(MonitoreoElectronico monitoreoElectronico) {
+        return new UpdateMonitoreoCommand(monitoreoElectronico);
+    }
+
+    public static PutMonitoreoCommand createPutMonitoreoCommand(MonitoreoElectronico monitoreoElectronico, DBHandler handler) {
+        return new PutMonitoreoCommand(monitoreoElectronico, handler);
+    }
+
+    public static DeleteMonitoreoCommand createDeleteMonitoreoCommand(MonitoreoElectronico monitoreoElectronico) {
+        return new DeleteMonitoreoCommand(monitoreoElectronico);
+    }
+
+    public static DelMonitoreoCommand createDelMonitoreoCommand(MonitoreoElectronico monitoreoElectronico, DBHandler handler) {
+        return new DelMonitoreoCommand(monitoreoElectronico, handler);
+    }
+
     public static AddZonaDeSeguridadCommand createAddZonaDeSeguridadCommand(ZonaDeSeguridad zonaDeSeguridad, DBHandler handler) {
         return new AddZonaDeSeguridadCommand(zonaDeSeguridad, handler);
     }
@@ -146,6 +170,15 @@ public class CommandFactory {
         return new GetZonaByIdCommand(handler, zonaId);
     }
 
+    public static GetAllZonasByUsernameCommand createGetAllZonasByUsernameCommand(long idMonitoreo){
+        return new GetAllZonasByUsernameCommand(idMonitoreo);
+    }
+
+    public static GetAllZonasBUserCommand createGetAllZonasBUserCommand( DBHandler handler, long idMonitoreo ) {
+        return new GetAllZonasBUserCommand( handler, idMonitoreo );
+    }
+
+
     public static CreateCoordenadaCommand createCreateCoordenadaCommand(Coordenada coordenada) {
         return new CreateCoordenadaCommand(coordenada);
     }
@@ -175,6 +208,37 @@ public class CommandFactory {
 
     public static PutCoordenadaCommand createPutCoordenadaCommand(Coordenada coordenada, DBHandler handler) {
         return new PutCoordenadaCommand(coordenada, handler);
+    }
+
+    public static CreateHistoricoCommand createCreateHistoricoCommand(HistoricoMovimiento historico) {
+        return new CreateHistoricoCommand(historico);
+    }
+    public static AddHistoricoCommand createAddHistoricoCommand(HistoricoMovimiento historico, DBHandler handler) {
+        return new AddHistoricoCommand(historico, handler);
+    }
+
+    public static GetAllMovimientoByUsernameCommand createGetAllMovimientoByUsernameCommand(long idUsuario) {
+        return new GetAllMovimientoByUsernameCommand(idUsuario);
+    }
+
+    public static GetAllMovimientoBUserCommand createGetAllMovimientoBUserCommand( DBHandler handler, long idUsuario ) {
+        return new GetAllMovimientoBUserCommand( handler, idUsuario );
+    }
+
+    public static GetAllCoordenadasByUsernameCommand createGetAllCoordenadasByUsernameCommand(long idUsuario) {
+        return new GetAllCoordenadasByUsernameCommand(idUsuario);
+    }
+
+    public static GetAllCoordenadasBUserCommand createGetAllCoordenadasBUserCommand( DBHandler handler, long idUsuario ) {
+        return new GetAllCoordenadasBUserCommand( handler, idUsuario );
+    }
+
+    public static UpdateUserCommand createUpdateUserCommand(User user) {
+        return new UpdateUserCommand(user);
+    }
+
+    public static PutUserCommand createPutUserCommand(User user, DBHandler handler) {
+        return new PutUserCommand(user, handler);
     }
 
 

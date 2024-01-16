@@ -2,6 +2,7 @@ package com.ucab.cmcapp.logic.dtos;
 
 public class PersonaDto {
 
+    private long _id;
     private String nombre;
     private String seg_nombre;
 
@@ -14,6 +15,14 @@ public class PersonaDto {
     private String fch_nac;
 
     private String direccion;
+
+    public long get_id() {
+        return _id;
+    }
+
+    public void set_id(long _id) {
+        this._id = _id;
+    }
 
     public String getNombre() {
         return nombre;

@@ -1,42 +1,38 @@
 package com.ucab.cmcapp.implementation;
 
+import com.ucab.cmcapp.common.EntityFactory;
 import com.ucab.cmcapp.common.entities.*;
 
 
-import com.ucab.cmcapp.common.util.GmailCodes;
-import com.ucab.cmcapp.common.util.LDAP;
-import com.ucab.cmcapp.common.util.ServiceResponse;
+import com.ucab.cmcapp.common.exceptions.PosicionamientoException;
+import com.ucab.cmcapp.common.util.*;
 import com.ucab.cmcapp.logic.commands.CommandFactory;
 import com.ucab.cmcapp.logic.commands.coordenada.atomic.GetCoordenadaByUsernameIdCommand;
 import com.ucab.cmcapp.logic.commands.coordenada.composite.CreateCoordenadaCommand;
+import com.ucab.cmcapp.logic.commands.coordenada.composite.GetAllCoordenadasByUsernameCommand;
+import com.ucab.cmcapp.logic.commands.coordenada.composite.GetCoordenadasZonaCommand;
+import com.ucab.cmcapp.logic.commands.historico_movimiento.composite.CreateHistoricoCommand;
+import com.ucab.cmcapp.logic.commands.historico_movimiento.composite.GetAllMovimientoByUsernameCommand;
 import com.ucab.cmcapp.logic.commands.mailcode.atomic.GetMailCodeByCodeCommand;
 import com.ucab.cmcapp.logic.commands.mailcode.composite.CreateMailCodeCommand;
+import com.ucab.cmcapp.logic.commands.persona.composite.UpdatePersonaCommand;
 import com.ucab.cmcapp.logic.commands.user.atomic.GetUserByEmailCommand;
 import com.ucab.cmcapp.logic.commands.user.atomic.GetUserByUsernameCommand;
 import com.ucab.cmcapp.logic.commands.user.composite.CreateUserCommand;
 import com.ucab.cmcapp.logic.commands.user.composite.GetAllUsersCommand;
 import com.ucab.cmcapp.logic.commands.user.composite.GetUserCommand;
 
-import com.ucab.cmcapp.logic.dtos.CoordenadaDto;
-import com.ucab.cmcapp.logic.dtos.MailCodeDto;
-import com.ucab.cmcapp.logic.dtos.UserDto;
+import com.ucab.cmcapp.logic.commands.user.composite.UpdateUserCommand;
+import com.ucab.cmcapp.logic.commands.zona_seguridad.composite.GetAllZonasByUsernameCommand;
+import com.ucab.cmcapp.logic.dtos.*;
 
-import com.ucab.cmcapp.logic.mappers.CoordenadaMapper;
-import com.ucab.cmcapp.logic.mappers.MailCodeMapper;
-import com.ucab.cmcapp.logic.mappers.UserMapper;
-
+import com.ucab.cmcapp.logic.mappers.*;
 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -418,8 +414,12 @@ public class UserService extends BaseService
         CoordenadaDto response;
         CreateCoordenadaCommand command = null;
 
+        double latitud;
+        double longitud;
+        String userName;
+
         //region Instrumentation DEBUG
-        _logger.debug( "Get in UserService.addLozalizacion - Zona de Seguridad o Usuario" );
+        _logger.debug( "Get in UserService.addLozalizacion - Usuario" );
         //endregion
 
         //Recorro el Array de Coordenadas y las registro en el determinado usuario
@@ -431,6 +431,10 @@ public class UserService extends BaseService
                 try
                 {
                         _logger.debug( "Get in UserService.addLozalizacion - Coordenada de Usuario" );
+                        latitud = coordenada.getLatitud();
+                        longitud = coordenada.getLongitud();
+                        userName = coordenada.getUsuarioDto().getUserName();
+
                         UserDto user = getUserByUsername( coordenada.getUsuarioDto().getUserName() );
                         coordenada.setUsuarioDto( user );
                         entity = CoordenadaMapper.mapDtoToEntity( coordenada );
@@ -443,6 +447,8 @@ public class UserService extends BaseService
                         serviceResponse.setRespuesta( coordenadasAgregadas );
                         serviceResponse.setStatus(true); //Todo correcto
                         serviceResponse.setMensaje("Se ha registrado la ubicacion del usuario");
+
+                        validarPosicionamiento(userName, latitud, longitud );
 
                     _logger.info( "Response addCoordenada Usuario: {} ", response );
 
@@ -463,7 +469,60 @@ public class UserService extends BaseService
 
         }
 
-        _logger.debug( "Leaving UserService.addLozalizacion - Zona de Seguridad o Usuario" );
+        _logger.debug( "Leaving UserService.addLozalizacion - Usuario" );
+        return serviceResponse;
+    }
+
+    @PUT
+    @Path( "/putUser/{username}/" )
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ServiceResponse putUser(  @PathParam( "username" ) String username, PersonaDto personaDto)
+    {
+
+        ServiceResponse serviceResponse = new ServiceResponse();
+        serviceResponse.setStatus(false);
+        serviceResponse.setRespuesta(null);
+        serviceResponse.setMensaje("No se ha podido actualizar los datos del usuario");
+
+        Persona entity;
+        UserDto userDto;
+        PersonaDto response;
+        UpdatePersonaCommand command = null;
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Get in UserService.putUser" );
+        //endregion
+
+        try
+        {
+            userDto = getUserByUsername(username);
+
+            entity = PersonaMapper.mapDtoToEntity( personaDto );
+            entity.set_id( userDto.getDatosPersona().get_id() );
+
+            command = CommandFactory.createUpdatePersonaCommand( entity );
+            command.execute();
+            response = PersonaMapper.mapEntityToDto( command.getReturnParam() );
+
+            serviceResponse.setStatus(true);
+            serviceResponse.setRespuesta(response);
+            serviceResponse.setMensaje("Se ha actualizado el usuario correctamente");
+            _logger.info( "Response putUser: {} ", response );
+
+        }
+        catch ( Exception e )
+        {
+            _logger.error("error {} updating user: {}", e.getMessage(), e.getCause());
+            throw new WebApplicationException( Response.status( Response.Status.INTERNAL_SERVER_ERROR ).
+                    entity( e ).build() );
+        }
+        finally
+        {
+            if (command != null)
+                command.closeHandlerSession();
+        }
+
+        _logger.debug( "Leaving UserService.putUser" );
         return serviceResponse;
     }
 
@@ -520,5 +579,366 @@ public class UserService extends BaseService
 
         return serviceResponse;
     }
+
+    @GET
+    @Path( "/getGeolocationHistory/{username}" )
+    public ServiceResponse getAllCoordenadasByUsername( @PathParam( "username" ) String username ) {
+
+        ServiceResponse serviceResponse = new ServiceResponse();
+        serviceResponse.setStatus(false);
+        serviceResponse.setMensaje("No se podido obtener el historico de la geolocalizacion del usuario: "+username);
+
+        List<CoordenadaDto> response;
+
+        GetAllCoordenadasByUsernameCommand command = null;
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Get in UserService.getAllCoordenadasByUsername" );
+        //endregion
+
+        try
+        {
+            UserDto serviceResponseDos = getUserByUsername(username);
+
+            command = CommandFactory.createGetAllCoordenadasByUsernameCommand(serviceResponseDos.getId());
+            command.execute();
+            response = CoordenadaMapper.mapEntityToDto( command.getReturnParam() );
+
+            serviceResponse.setStatus(true);
+            serviceResponse.setRespuesta(response);
+            serviceResponse.setMensaje("Se obtuvo el historico de la geolocalizacion del usuario");
+
+            _logger.info( "Response getAllCoordenadasByUsername: {} ", response );
+        }
+        catch ( Exception e )
+        {
+            _logger.error("error {} getting historico de coordenadas {}: {}", e.getMessage(), "getAll", e.getCause());
+            throw new WebApplicationException( Response.status( Response.Status.INTERNAL_SERVER_ERROR ).
+                    entity( e ).build() );
+        }
+        finally
+        {
+            if (command != null)
+                command.closeHandlerSession();
+        }
+
+        _logger.debug( "Leaving UserService.getAllCoordenadasByUsername" );
+
+        return serviceResponse;
+    }
+
+    @POST
+    @Path( "/setMovimiento/{username}" )
+    public ServiceResponse addMovimiento(@PathParam( "username" ) String username,  ArrayList<HistoricoMovimientoDto> listDeHistoricoMovimiento)
+    {
+
+        ServiceResponse serviceResponse = new ServiceResponse();
+
+        ArrayList<HistoricoMovimientoDto> historicosAgregados = new ArrayList<HistoricoMovimientoDto>();
+
+        HistoricoMovimiento entity;
+        HistoricoMovimientoDto response;
+        CreateHistoricoCommand command = null;
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Get in UserService.addMovimiento: "+username );
+        //endregion
+
+        //Recorro el Array de Historico y los registro en el determinado usuario
+
+        for (HistoricoMovimientoDto historico : listDeHistoricoMovimiento){
+
+            //La coordenada corresponde a un usuario
+
+            try
+            {
+                UserDto user = getUserByUsername( username );
+                historico.setUserDto( user );
+                entity = HistoricoMovimientoMapper.mapDtoToEntity( historico );
+                command = CommandFactory.createCreateHistoricoCommand( entity );
+                command.execute();
+                response = HistoricoMovimientoMapper.mapEntityToDto( command.getReturnParam() );
+
+                historicosAgregados.add( response );
+
+                serviceResponse.setRespuesta( historicosAgregados );
+                serviceResponse.setStatus(true); //Todo correcto
+                serviceResponse.setMensaje("Se ha registrado el historico de movimiento del usuario");
+
+                _logger.info( "Response addMovimiento Usuario: {} ", response );
+
+            }
+            catch ( Exception e )
+            {
+                _logger.error("error {} adding movimiento del usuario: {}", e.getMessage(), e.getCause());
+                serviceResponse.setStatus(false);
+                serviceResponse.setMensaje("Error al registrar el historico de movimiento del usuario");
+                throw new WebApplicationException( Response.status( Response.Status.INTERNAL_SERVER_ERROR ).
+                        entity( e ).build() );
+            }
+            finally
+            {
+                if (command != null)
+                    command.closeHandlerSession();
+            }
+
+        }
+
+        _logger.debug( "Leaving UserService.addMovimiento" );
+        return serviceResponse;
+    }
+
+    @GET
+    @Path( "/getAllMovimientoByUser/{username}" )
+    public ServiceResponse getAllMovimientoByUsername( @PathParam( "username" ) String username ) {
+
+        ServiceResponse serviceResponse = new ServiceResponse();
+        serviceResponse.setStatus(false);
+        serviceResponse.setMensaje("No se podido obtener la lista de historico de movimiento del usuario: "+username);
+
+        List<HistoricoMovimientoDto> response;
+
+        GetAllMovimientoByUsernameCommand command = null;
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Get in UserService.getAllMovimientoByUsername" );
+        //endregion
+
+        try
+        {
+            UserDto serviceResponseDos = getUserByUsername(username);
+
+            command = CommandFactory.createGetAllMovimientoByUsernameCommand(serviceResponseDos.getId());
+            command.execute();
+            response = HistoricoMovimientoMapper.mapEntityToDto( command.getReturnParam() );
+
+            serviceResponse.setStatus(true);
+            serviceResponse.setRespuesta(response);
+            serviceResponse.setMensaje("Se obtuvo la lista de historicos de movimiento del usuario");
+
+            _logger.info( "Response getAllMovimientoByUsername: {} ", response );
+        }
+        catch ( Exception e )
+        {
+            _logger.error("error {} getting all movimiento {}: {}", e.getMessage(), "getAll", e.getCause());
+            throw new WebApplicationException( Response.status( Response.Status.INTERNAL_SERVER_ERROR ).
+                    entity( e ).build() );
+        }
+        finally
+        {
+            if (command != null)
+                command.closeHandlerSession();
+        }
+
+        _logger.debug( "Leaving UserService.getAllMovimientoByUsername" );
+
+        return serviceResponse;
+    }
+
+    @GET
+    @Path( "getDistance/{nombreUsuarioUno}/{nombreUsuarioDos}" )
+    public ServiceResponse getDistance(@PathParam( "nombreUsuarioUno" ) String nombreUsuarioUno, @PathParam( "nombreUsuarioDos" ) String nombreUsuarioDos)
+    {
+
+        ServiceResponse serviceResponse = new ServiceResponse();
+        serviceResponse.setStatus(false);
+        serviceResponse.setMensaje("No se ha podido calcular la distancia entre los usuarios");
+
+        ServiceResponse getGeolocationResponse = new ServiceResponse();
+
+        CoordenadaDto coordenadaDtoUno = new CoordenadaDto();
+        CoordenadaDto coordenadaDtoDos = new CoordenadaDto();
+
+        double distance = 0;
+
+        GetCoordenadaByUsernameIdCommand command = null;
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Get in UserService.getDistance" );
+        //endregion
+
+        try
+        {
+
+            getGeolocationResponse = getGoeolocationOfUser( nombreUsuarioUno );
+            coordenadaDtoUno = (CoordenadaDto) getGeolocationResponse.getRespuesta();
+
+            getGeolocationResponse = getGoeolocationOfUser( nombreUsuarioDos );
+            coordenadaDtoDos = (CoordenadaDto) getGeolocationResponse.getRespuesta();
+
+            distance = DistanceCalculator.haversine(coordenadaDtoUno.getLatitud(), coordenadaDtoUno.getLongitud(), coordenadaDtoDos.getLatitud(), coordenadaDtoDos.getLongitud());
+
+            serviceResponse.setStatus(true);
+            serviceResponse.setRespuesta( distance );
+            serviceResponse.setMensaje("Se ha calculado la distancia correctamente");
+
+
+
+            _logger.info( "Response getDistance: {} ", distance );
+        }
+        catch ( Exception e )
+        {
+            _logger.error("error {} getting the distance {}: {}", e.getMessage(), nombreUsuarioUno, nombreUsuarioDos, e.getCause());
+            throw new WebApplicationException( Response.status( Response.Status.INTERNAL_SERVER_ERROR ).
+                    entity( e ).build() );
+        }
+        finally
+        {
+            if (command != null)
+                command.closeHandlerSession();
+        }
+
+        _logger.debug( "Leaving UserService.getDistance" );
+
+        return serviceResponse;
+    }
+
+    @PUT
+    @Path( "/putToken/{username}/{token}/" )
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ServiceResponse putUserToken( @PathParam( "username" ) String username, @PathParam( "token" ) String token )
+    {
+
+        ServiceResponse serviceResponse = new ServiceResponse();
+        serviceResponse.setStatus(false);
+        serviceResponse.setRespuesta(null);
+        serviceResponse.setMensaje("No se ha podido actualizar los datos del usuario");
+
+        User entity;
+        UserDto userDto;
+        UserDto response;
+        UpdateUserCommand command = null;
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Get in UserService.putUser" );
+        //endregion
+
+        try
+        {
+            userDto = getUserByUsername(username);
+
+            entity = UserMapper.mapDtoToEntity( userDto );
+
+            entity.setImei( token );
+            entity.setTermCondition( true );
+
+            Persona persona = EntityFactory.createPersona();
+            persona.set_id( userDto.getDatosPersona().get_id() );
+
+            UserType userType = EntityFactory.createUserType();
+            userType.setId( userDto.getUserTypeDto().getId() );
+
+            entity.setDatosPersona( persona );
+            entity.setUserType( userType );
+
+            command = CommandFactory.createUpdateUserCommand( entity );
+            command.execute();
+            response = UserMapper.mapEntityToDto( command.getReturnParam() );
+
+            serviceResponse.setStatus(true);
+            serviceResponse.setRespuesta(response);
+            serviceResponse.setMensaje("Se ha actualizado el usuario correctamente");
+            _logger.info( "Response putUser: {} ", response );
+
+        }
+        catch ( Exception e )
+        {
+            _logger.error("error {} updating user: {}", e.getMessage(), e.getCause());
+            throw new WebApplicationException( Response.status( Response.Status.INTERNAL_SERVER_ERROR ).
+                    entity( e ).build() );
+        }
+        finally
+        {
+            if (command != null)
+                command.closeHandlerSession();
+        }
+
+        _logger.debug( "Leaving UserService.putUser" );
+        return serviceResponse;
+    }
+
+
+
+    // Algunas funciones para validar requerimientos del proyecto
+
+    //GESTION DEL POSICIONAMIENTO, VALIDAR DISTANCIA Y ZONAS DE SEGURIDAD
+
+    public void validarPosicionamiento(String username, double latitud, double longitud){
+
+        //Primero valido la distancia con el usuario
+
+        MonitoreoElectronicoService monitoreoElectronicoService = new MonitoreoElectronicoService();
+        MonitoreoElectronicoDto monitoreoElectronicoDto;
+        monitoreoElectronicoDto = monitoreoElectronicoService.getMonitoreoPorUsuario(username);
+
+        UserDto userDtoReq;
+        UserDto userDtoUno;
+        UserDto userDtoDos;
+
+        CoordenadaDto coordenadaDtoUno;
+        CoordenadaDto coordenadaDtoDos;
+
+        ServiceResponse getGeolocationResponse = new ServiceResponse();
+
+        FirebaseSender firebaseSender = new FirebaseSender();
+
+        double distanciaBUsers = 0;
+
+        ZonaDeSeguridadService zonaDeSeguridadService = new ZonaDeSeguridadService();
+        ServiceResponse zonaDeSeguridadResponse = new ServiceResponse();
+        List<ZonaDeSeguridadDto> responseZonas;
+
+        CoordenadasService coordenadasService = new CoordenadasService();
+        ServiceResponse coordenadasResponse = new ServiceResponse();
+        List<CoordenadaDto> responseCoord;
+
+        try {
+
+            userDtoReq = getUserByUsername(username);
+            userDtoUno = monitoreoElectronicoDto.getAtacanteUser(); //Atacante
+            userDtoDos = monitoreoElectronicoDto.getVictimaUser();  //Victima
+
+            getGeolocationResponse = getGoeolocationOfUser(userDtoUno.getUserName());
+            coordenadaDtoUno = (CoordenadaDto) getGeolocationResponse.getRespuesta();
+
+            getGeolocationResponse = getGoeolocationOfUser(userDtoDos.getUserName());
+            coordenadaDtoDos = (CoordenadaDto) getGeolocationResponse.getRespuesta();
+
+            distanciaBUsers = DistanceCalculator.haversine(coordenadaDtoUno.getLatitud(), coordenadaDtoUno.getLongitud(), coordenadaDtoDos.getLatitud(), coordenadaDtoDos.getLongitud());
+
+            if(distanciaBUsers <= monitoreoElectronicoDto.getDistanciaAlejamiento()){
+                firebaseSender.sendMessage("Alerta - La distancia de seguridad esta siendo violada", "La distancia entre tu y el agresor es de: " + distanciaBUsers + " km", userDtoDos.getImei());
+                //Alertar a la web
+            }
+
+            if(userDtoReq.getUserTypeDto().getId() == 3){
+
+                zonaDeSeguridadResponse = zonaDeSeguridadService.getAllZonasByUsername(userDtoReq.getUserName());
+
+                responseZonas = (List<ZonaDeSeguridadDto>) zonaDeSeguridadResponse.getRespuesta();
+
+                for ( ZonaDeSeguridadDto zonaDeSeguridadDto : responseZonas){
+
+                    coordenadasResponse = coordenadasService.getAllCoordZonas(zonaDeSeguridadDto.getId());
+                    responseCoord = (List<CoordenadaDto>) coordenadasResponse.getRespuesta();
+
+                    boolean valido = ZonaSegValidator.isPointInPolygon(latitud, longitud, responseCoord);
+
+                    if(valido){
+                        firebaseSender.sendMessage("Alerta - Una zona de seguridad ha sido violada", "El agresor se encuentra dentro de la zona de seguridad: " + zonaDeSeguridadDto.getId() + " km", userDtoDos.getImei());
+                        //Alertar a la web
+                    }
+                }
+                
+
+            }
+
+        } catch (PosicionamientoException e) {
+            throw new PosicionamientoException(username);
+        }
+
+    }
+
+
 
 }

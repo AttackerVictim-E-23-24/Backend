@@ -76,15 +76,17 @@ public class MonitoreoElectronicoDao extends BaseDao<MonitoreoElectronico> {
             CriteriaQuery<MonitoreoElectronico> query = builder.createQuery(MonitoreoElectronico.class);
             Root<MonitoreoElectronico> root = query.from(MonitoreoElectronico.class);
 
-            query.select(root);
-
-            // Create a single predicate matching cedula in both cedulaAtacante and cedulaVictima
+            // Create predicates for cedula and isActive
             Predicate cedulaPredicate = builder.or(
                     builder.equal(root.get("cedulaAtacante"), cedula),
                     builder.equal(root.get("cedulaVictima"), cedula)
             );
+            Predicate isActivePredicate = builder.equal(root.get("isActive"), true);
 
-            query.where(cedulaPredicate);
+            // Combine predicates using AND
+            query.where(builder.and(cedulaPredicate, isActivePredicate));
+
+            query.select(root);
 
             result = _em.createQuery(query).getSingleResult();
         } catch (NoResultException e) {

@@ -43,6 +43,9 @@ public class MonitoreoElectronico {
     @Column( name = "distanciaAlejamiento", nullable = false )
     private int distanciaAlejamiento;
 
+    @Column( name = "isActive", nullable = false, columnDefinition = "boolean default true" )
+    private boolean isActive;
+
     @Column( name = "cedulaAtacante", nullable = false )
     private long cedulaAtacante;
 
@@ -56,6 +59,14 @@ public class MonitoreoElectronico {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn( name = "victima_id", nullable = false )
     private User victimaUser;
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
 
     public long get_id() {
         return _id;

@@ -41,6 +41,7 @@ public class PersonaMapper extends BaseMapper{
         _logger.debug("Get in PersonaMapper.mapEntityToDto: entity {}", entity);
         //endregion
 
+        dto.set_id(entity.get_id());
         dto.setCedula(entity.getCedula());
         dto.setFch_nac(entity.getFch_nacimiento());
         dto.setSeg_apellido(entity.getSeg_apellido());

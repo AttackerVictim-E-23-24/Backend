@@ -11,10 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +44,7 @@ public class CoordenadaDao extends BaseDao<Coordenada> {
             Root<Coordenada> root = query.from(Coordenada.class);
 
             query.select(root);
+            query.orderBy(_builder.desc(root.get("_createAt")));
             query.where(builder.equal(root.get("usuario").get("_id"), usuarioId)); // Join on usuario and match usuario_id
 
             result = _em.createQuery(query).setMaxResults(1).getSingleResult();
@@ -73,7 +71,7 @@ public class CoordenadaDao extends BaseDao<Coordenada> {
             Root<Coordenada> root = query.from(Coordenada.class);
 
             query.select(root);
-            query.where(builder.equal(root.get("zonaDeSeguridad").get("_id"), zonaId)); // Join on zonaDeSeguridad and match zona_id
+            query.where(builder.equal(root.get("zonaSeg").get("_id"), zonaId)); // Join on zonaDeSeguridad and match zona_id
 
             resultList = _em.createQuery(query).getResultList();
         } catch (NoResultException e) {
@@ -126,10 +124,39 @@ public class CoordenadaDao extends BaseDao<Coordenada> {
         return result;
     }
 
+    public List<Coordenada> getAllCoordenadasByUserId(Long userId) {
 
+        List<Coordenada> result = new ArrayList<>();  // Initialize empty list
+        _logger.debug(String.format("Get in getAllCoordenadasByUserId: userId {%d}", userId));
 
+        try {
+            CriteriaQuery<Coordenada> query = _builder.createQuery(Coordenada.class);
+            Root<Coordenada> root = query.from(Coordenada.class);
 
+            // Join with User entity and restrict by userId
+            Join<Coordenada, User> userJoin = root.join("usuario");  // Assuming relationship name is "usuario"
+            query.where(_builder.equal(userJoin.get("_id"), userId));
 
+            query.orderBy(_builder.desc(root.get("_createAt")));
+
+            // Get the results as an ordered list
+            result = _em.createQuery(query).getResultList();
+
+            // Limit the results to a maximum of 10
+            if (result.size() > 10) {
+                result = result.subList(0, 10);
+            }
+        } catch (NoResultException e) {
+            _logger.warn(String.format("No coordenadas found for userId: {%d}", userId));
+        } catch (Exception e) {
+            _logger.error(String.format("Error retrieving coordenadas: {%s}", e.getMessage()));
+            throw new CupraException(e.getMessage());
+        }
+
+        _logger.debug(String.format("Leaving getAllCoordenadasByUserId: result list {%s}", result));
+
+        return result;
+    }
 
 
 }

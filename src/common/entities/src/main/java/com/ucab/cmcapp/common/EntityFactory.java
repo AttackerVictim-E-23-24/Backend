@@ -94,4 +94,13 @@ public class EntityFactory
         return new ZonaDeSeguridad(activo);
     }
 
+    public static HistoricoMovimiento createHistoricoMovimiento(){
+        return new HistoricoMovimiento();
+    }
+
+    public static Alerta createAlerta(){
+        return new Alerta();
+    }
+
+
 }

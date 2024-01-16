@@ -4,10 +4,7 @@ import com.ucab.cmcapp.common.entities.*;
 import com.ucab.cmcapp.common.util.ServiceResponse;
 import com.ucab.cmcapp.logic.commands.CommandFactory;
 import com.ucab.cmcapp.logic.commands.coordenada.composite.CreateCoordenadaCommand;
-import com.ucab.cmcapp.logic.commands.zona_seguridad.composite.CreateZonaDeSeguridadCommand;
-import com.ucab.cmcapp.logic.commands.zona_seguridad.composite.DeleteZonaDeSeguridadCommand;
-import com.ucab.cmcapp.logic.commands.zona_seguridad.composite.GetAllZonasCommand;
-import com.ucab.cmcapp.logic.commands.zona_seguridad.composite.GetZonaCommand;
+import com.ucab.cmcapp.logic.commands.zona_seguridad.composite.*;
 import com.ucab.cmcapp.logic.dtos.CoordenadaDto;
 import com.ucab.cmcapp.logic.dtos.MonitoreoElectronicoDto;
 import com.ucab.cmcapp.logic.dtos.UserDto;
@@ -130,6 +127,54 @@ public class ZonaDeSeguridadService extends BaseService{
     }
 
     @GET
+    @Path( "/getAllByUsername/{username}" )
+    public ServiceResponse getAllZonasByUsername( @PathParam( "username" ) String username ) {
+
+        ServiceResponse serviceResponse = new ServiceResponse();
+        serviceResponse.setStatus(false);
+        serviceResponse.setMensaje("No se podido obtener la lista de zonas de seguridad del usuario: "+username);
+
+        List<ZonaDeSeguridadDto> response;
+
+        GetAllZonasByUsernameCommand command = null;
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Get in ZonaDeSeguridadService.getAllZonas" );
+        //endregion
+
+        try
+        {
+            MonitoreoElectronicoService monitoreoService = new MonitoreoElectronicoService();
+            MonitoreoElectronicoDto serviceResponseDos = monitoreoService.getMonitoreoPorUsuario(username);
+
+            command = CommandFactory.createGetAllZonasByUsernameCommand(serviceResponseDos.getId());
+            command.execute();
+            response = ZonaDeSeguridadMapper.mapEntityToDto( command.getReturnParam() );
+
+            serviceResponse.setStatus(true);
+            serviceResponse.setRespuesta(response);
+            serviceResponse.setMensaje("Se obtuvo la lista de zonas de seguridad");
+
+            _logger.info( "Response getAllZonas: {} ", response );
+        }
+        catch ( Exception e )
+        {
+            _logger.error("error {} getting all zonas {}: {}", e.getMessage(), "getAll", e.getCause());
+            throw new WebApplicationException( Response.status( Response.Status.INTERNAL_SERVER_ERROR ).
+                    entity( e ).build() );
+        }
+        finally
+        {
+            if (command != null)
+                command.closeHandlerSession();
+        }
+
+        _logger.debug( "Leaving UserService.getAllZonas" );
+
+        return serviceResponse;
+    }
+
+    @GET
     @Path( "/getZona/{id}" )
     public ZonaDeSeguridadDto getZona( @PathParam( "id" ) long id ) {
 
@@ -196,15 +241,15 @@ public class ZonaDeSeguridadService extends BaseService{
         try
         {
             entity = ZonaDeSeguridadMapper.mapDtoToEntity(getZona( zonaSegId ));
+            entity.setActivo(false);
             command = CommandFactory.createDeleteZonaDeSeguridadCommand( entity );
             command.execute();
-            response = ZonaDeSeguridadMapper.mapEntityToDto( command.getReturnParam() );
 
             serviceResponse.setStatus(true);
-            serviceResponse.setRespuesta(response);
+            serviceResponse.setRespuesta(true);
             serviceResponse.setMensaje("Zona de seguridad eliminada correctamente");
 
-            _logger.info( "Response deleteZona: {} ", response );
+            _logger.info( "Response deleteZona: {} ", true );
         }
         catch ( Exception e )
         {
@@ -218,7 +263,7 @@ public class ZonaDeSeguridadService extends BaseService{
                 command.closeHandlerSession();
         }
 
-        _logger.debug( "Leaving UserService.getUser" );
+        _logger.debug( "Leaving ZonaDeSeguridadService.deleteZona" );
         return serviceResponse;
 
     }
