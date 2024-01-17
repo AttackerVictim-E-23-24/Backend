@@ -883,6 +883,30 @@ public class UserService extends BaseService
 
         return serviceResponse;
     }
+
+    @GET
+    @Path( "/puntoDeControl/{username}/" )
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ServiceResponse puntoDeControl(@PathParam( "username" ) String username) {
+
+        ServiceResponse serviceResponse = new ServiceResponse();
+        serviceResponse.setStatus(false);
+        serviceResponse.setRespuesta(username);
+        serviceResponse.setMensaje("No se ha podido enviar la alerta de punto de control a las autoridades");
+
+        String tokenAdmin = "Epale";
+
+        try {
+            FirebaseSender.sendMessage("Alerta - Tiempo de Control ha llegado a 0", "El siguiente usuario puede que tenga problemas: " + username, tokenAdmin);
+            serviceResponse.setStatus(true);
+            serviceResponse.setRespuesta(username);
+            serviceResponse.setMensaje("Se ha enviado la alerta de tiempo de control correctamente");
+        } catch (FirebaseException e) {
+            throw new FirebaseException(username);
+        }
+
+        return serviceResponse;
+    }
     
     // Algunas funciones para validar requerimientos del proyecto
 
