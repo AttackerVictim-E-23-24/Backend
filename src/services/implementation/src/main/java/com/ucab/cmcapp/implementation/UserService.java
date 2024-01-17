@@ -4,6 +4,7 @@ import com.ucab.cmcapp.common.EntityFactory;
 import com.ucab.cmcapp.common.entities.*;
 
 
+import com.ucab.cmcapp.common.exceptions.FirebaseException;
 import com.ucab.cmcapp.common.exceptions.PosicionamientoException;
 import com.ucab.cmcapp.common.util.*;
 import com.ucab.cmcapp.logic.commands.CommandFactory;
@@ -857,8 +858,32 @@ public class UserService extends BaseService
         return serviceResponse;
     }
 
+    //ENDPOINT que maneja el BOTON SOS
 
+    @GET
+    @Path( "/sos/{username}/" )
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ServiceResponse sos(@PathParam( "username" ) String username) {
 
+        ServiceResponse serviceResponse = new ServiceResponse();
+        serviceResponse.setStatus(false);
+        serviceResponse.setRespuesta(username);
+        serviceResponse.setMensaje("No se ha podido enviar la notificación SOS a las autoridades");
+
+        String tokenAdmin = "Epale";
+
+        try {
+            FirebaseSender.sendMessage("Alerta Maxima - SOS", "El siguiente usuario ha presionado el boton SOS: " + username, tokenAdmin);
+            serviceResponse.setStatus(true);
+            serviceResponse.setRespuesta(username);
+            serviceResponse.setMensaje("Se ha enviado el SOS correctamente");
+        } catch (FirebaseException e) {
+            throw new FirebaseException(username);
+        }
+
+        return serviceResponse;
+    }
+    
     // Algunas funciones para validar requerimientos del proyecto
 
     //GESTION DEL POSICIONAMIENTO, VALIDAR DISTANCIA Y ZONAS DE SEGURIDAD
