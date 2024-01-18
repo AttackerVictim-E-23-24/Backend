@@ -7,8 +7,10 @@ import com.ucab.cmcapp.logic.commands.coordenada.composite.GetAllCoordenadasByUs
 import com.ucab.cmcapp.logic.commands.coordenada.composite.GetCoordenadasZonaCommand;
 import com.ucab.cmcapp.logic.commands.coordenada.composite.UpdateCoordenadaCommand;
 import com.ucab.cmcapp.logic.commands.historico_movimiento.atomic.AddHistoricoCommand;
+import com.ucab.cmcapp.logic.commands.historico_movimiento.atomic.GetAllMovimientoBSecondsCommand;
 import com.ucab.cmcapp.logic.commands.historico_movimiento.atomic.GetAllMovimientoBUserCommand;
 import com.ucab.cmcapp.logic.commands.historico_movimiento.composite.CreateHistoricoCommand;
+import com.ucab.cmcapp.logic.commands.historico_movimiento.composite.GetAllMovimientoBySecondsUsernameCommand;
 import com.ucab.cmcapp.logic.commands.historico_movimiento.composite.GetAllMovimientoByUsernameCommand;
 import com.ucab.cmcapp.logic.commands.mailcode.atomic.AddMailCodeCommand;
 import com.ucab.cmcapp.logic.commands.mailcode.atomic.GetMailCodeByCodeCommand;
@@ -241,6 +243,13 @@ public class CommandFactory {
         return new PutUserCommand(user, handler);
     }
 
+    public static GetAllMovimientoBSecondsCommand createGetAllMovimientoBSecondsCommand( DBHandler handler, long idUsuario, int seconds ) {
+        return new GetAllMovimientoBSecondsCommand( handler, idUsuario, seconds );
+    }
+
+    public static GetAllMovimientoBySecondsUsernameCommand createGetAllMovimientoBySecondsUsernameCommand( long idUsuario, int seconds ){
+        return new GetAllMovimientoBySecondsUsernameCommand( idUsuario, seconds );
+    }
 
 
 }

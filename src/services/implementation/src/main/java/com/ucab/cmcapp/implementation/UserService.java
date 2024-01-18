@@ -13,6 +13,7 @@ import com.ucab.cmcapp.logic.commands.coordenada.composite.CreateCoordenadaComma
 import com.ucab.cmcapp.logic.commands.coordenada.composite.GetAllCoordenadasByUsernameCommand;
 import com.ucab.cmcapp.logic.commands.coordenada.composite.GetCoordenadasZonaCommand;
 import com.ucab.cmcapp.logic.commands.historico_movimiento.composite.CreateHistoricoCommand;
+import com.ucab.cmcapp.logic.commands.historico_movimiento.composite.GetAllMovimientoBySecondsUsernameCommand;
 import com.ucab.cmcapp.logic.commands.historico_movimiento.composite.GetAllMovimientoByUsernameCommand;
 import com.ucab.cmcapp.logic.commands.mailcode.atomic.GetMailCodeByCodeCommand;
 import com.ucab.cmcapp.logic.commands.mailcode.composite.CreateMailCodeCommand;
@@ -974,7 +975,7 @@ public class UserService extends BaseService
                     boolean valido = ZonaSegValidator.isPointInPolygon(latitud, longitud, responseCoord);
 
                     if(valido){
-                        firebaseSender.sendMessage("Alerta - Una zona de seguridad ha sido violada", "El agresor se encuentra dentro de la zona de seguridad: " + zonaDeSeguridadDto.getId() + " km", userDtoDos.getImei());
+                        firebaseSender.sendMessage("Alerta - Una zona de seguridad ha sido violada", "El agresor se encuentra dentro de la zona de seguridad: " + zonaDeSeguridadDto.getId(), userDtoDos.getImei());
                         //Alertar a la web
                     }
                 }
@@ -988,6 +989,68 @@ public class UserService extends BaseService
 
     }
 
+    //Funcion necesaria para obtener los movimientos del usuario dado el username, el tiempo actual y el tiempo de inactividad
+    @GET
+    @Path("/getMovimientoBySecondsUsername/{username}/{segundos}")
+    public List<HistoricoMovimientoDto> getMovimientoBySecondsUsername( @PathParam("username") String username, @PathParam("segundos") int segundos ) {
 
+        ServiceResponse serviceResponse = new ServiceResponse();
+        serviceResponse.setStatus(false);
+        serviceResponse.setMensaje("No se podido obtener la lista de historico de movimiento del usuario: "+username);
+
+        List<HistoricoMovimientoDto> response;
+
+        GetAllMovimientoBySecondsUsernameCommand command = null;
+
+        //region Instrumentation DEBUG
+        _logger.debug( "Get in UserService.getAllMovimientoByUsername" );
+        //endregion
+
+        try
+        {
+            UserDto serviceResponseDos = getUserByUsername(username);
+
+            command = CommandFactory.createGetAllMovimientoBySecondsUsernameCommand(serviceResponseDos.getId(), segundos);
+            command.execute();
+            response = HistoricoMovimientoMapper.mapEntityToDto( command.getReturnParam() );
+
+            serviceResponse.setStatus(true);
+            serviceResponse.setRespuesta(response);
+            serviceResponse.setMensaje("Se obtuvo la lista de historicos de movimiento del usuario");
+
+            _logger.info( "Response getAllMovimientoByUsername: {} ", response );
+        }
+        catch ( Exception e )
+        {
+            _logger.error("error {} getting all movimiento {}: {}", e.getMessage(), "getAll", e.getCause());
+            throw new WebApplicationException( Response.status( Response.Status.INTERNAL_SERVER_ERROR ).
+                    entity( e ).build() );
+        }
+        finally
+        {
+            if (command != null)
+                command.closeHandlerSession();
+        }
+
+        _logger.debug( "Leaving UserService.getAllMovimientoByUsername" );
+
+        return response;
+    }
+
+    public boolean validarMovimiento(String username, int inactividad){
+
+        boolean condition = false;
+
+        List<HistoricoMovimientoDto> movimiento = getMovimientoBySecondsUsername(username, inactividad);
+
+        for (HistoricoMovimientoDto historicoMovimientoDto : movimiento){
+
+            if (historicoMovimientoDto.isMovimiento()){
+                condition = true;
+            }
+        }
+
+        return condition;
+    }
 
 }

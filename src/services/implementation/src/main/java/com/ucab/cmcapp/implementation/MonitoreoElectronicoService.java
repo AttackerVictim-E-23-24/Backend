@@ -3,6 +3,7 @@ package com.ucab.cmcapp.implementation;
 import com.ucab.cmcapp.common.EntityFactory;
 import com.ucab.cmcapp.common.entities.MonitoreoElectronico;
 import com.ucab.cmcapp.common.entities.ZonaDeSeguridad;
+import com.ucab.cmcapp.common.util.HilosInamovilidad;
 import com.ucab.cmcapp.common.util.ServiceResponse;
 import com.ucab.cmcapp.common.entities.User;
 import com.ucab.cmcapp.logic.commands.CommandFactory;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 
 @Path( "/monitoreo" )
@@ -44,6 +46,8 @@ public class MonitoreoElectronicoService extends BaseService{
         ServiceResponse serviceResponse = new ServiceResponse();
         serviceResponse.setStatus(false);
         serviceResponse.setMensaje("No se ha podido agregar el monitoreo electronico");
+
+        HiloInamovilidad hiloInamovilidad = null;
 
         //region Instrumentation DEBUG
         _logger.debug( "Get in MonitoreoElectronicoService.addMonitoreo" );
@@ -83,9 +87,19 @@ public class MonitoreoElectronicoService extends BaseService{
             command = CommandFactory.createCreateMonitoreoElectronicoCommand( entity );
             command.execute();
             response = MonitoreoElectronicoMapper.mapEntityToDto( command.getReturnParam() );
+
             serviceResponse.setRespuesta( response );
             serviceResponse.setMensaje("Se ha agregado correctamente el monitoreo electronico");
             serviceResponse.setStatus(true);
+
+            // Mando a correr el hilo para verificar la inamovilidad de la vicitma -- INAMOVILIDAD
+
+            hiloInamovilidad = new HiloInamovilidad(entity.getTiempoInactividad(), userVict.getUserName());
+
+            hiloInamovilidad.start();
+
+            HilosInamovilidad.getThreads().add(hiloInamovilidad);
+
             _logger.info( "Response addMonitoreo: {} ", response );
 
         }
@@ -218,6 +232,8 @@ public class MonitoreoElectronicoService extends BaseService{
         serviceResponse.setStatus(false);
         serviceResponse.setMensaje("No se ha podido actualizar el monitoreo electronico");
 
+        HiloInamovilidad hiloInamovilidad = null;
+
         //region Instrumentation DEBUG
         _logger.debug( "Get in MonitoreoElectronicoService.putMonitoreo" );
         //endregion
@@ -247,6 +263,29 @@ public class MonitoreoElectronicoService extends BaseService{
             serviceResponse.setRespuesta( command.getReturnParam() );
             serviceResponse.setMensaje("Se ha actualizado correctamente el monitoreo electronico");
             serviceResponse.setStatus(true);
+
+            // Se hace la gestion para parar cualquier hilo que este corriendo para lanzar uno nuevo
+
+            // Mando a correr el hilo para verificar la inamovilidad de la vicitma -- INAMOVILIDAD
+
+
+
+            hiloInamovilidad = new HiloInamovilidad(entity.getTiempoInactividad(), userVict.getUserName());
+
+            hiloInamovilidad.start();
+
+            List<Thread> threads = HilosInamovilidad.getThreads();
+
+            for (Thread thread : threads) {
+
+                if (thread.isAlive()) {
+                    thread.interrupt();
+                }
+
+            }
+
+            HilosInamovilidad.getThreads().add(hiloInamovilidad);
+
             _logger.info( "Response putMonitoreo: {} ", command.getReturnParam() );
 
         }
