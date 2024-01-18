@@ -9,11 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class HistoricoMovimientoDao extends BaseDao<HistoricoMovimiento> {
@@ -61,5 +59,49 @@ public class HistoricoMovimientoDao extends BaseDao<HistoricoMovimiento> {
         //endregion
 
         return result;
+    }
+
+    public List<HistoricoMovimiento> getHistoricoMovimientoBySeconds(Long userId, int seconds) {
+
+        List<HistoricoMovimiento> result = new ArrayList<>();
+        _logger.debug(String.format("Get in getHistoricoMovimientoBySeconds: userId {%d}, seconds {%d}", userId, seconds));
+
+        try {
+            CriteriaBuilder builder = _em.getCriteriaBuilder();
+            CriteriaQuery<HistoricoMovimiento> query = builder.createQuery(HistoricoMovimiento.class);
+            Root<HistoricoMovimiento> root = query.from(HistoricoMovimiento.class);
+
+            // Join with User entity and restrict by userId
+            Join<HistoricoMovimiento, User> userJoin = root.join("usuario");
+
+            // Use the correct field name for fecha
+            // Assuming the date field is named "fecha" in HistoricoMovimiento
+            Predicate fechaPredicate = builder.greaterThan(root.get("_fecha"), builder.literal(getThresholdDate(seconds)));
+
+            query.where(
+                    builder.equal(userJoin.get("_id"), userId),
+                    fechaPredicate
+            );
+
+            query.select(root);
+            result = _em.createQuery(query).getResultList();
+        } catch (NoResultException e) {
+            _logger.warn(String.format("No historico movimiento found for userId: {%d}", userId));
+        } catch (Exception e) {
+            _logger.error(String.format("Error retrieving historico movimiento: {%s}", e.getMessage()));
+            throw new CupraException(e.getMessage());
+        }
+
+        //region Instrumentation
+        _logger.debug(String.format("Leaving getHistoricoMovimientoBySeconds: result list {%s}", result));
+        //endregion
+
+        return result;
+    }
+
+    private Date getThresholdDate(int seconds) {
+        // Obtén la fecha actual y resta los segundos especificados
+        long thresholdMillis = System.currentTimeMillis() - (seconds * 1000);
+        return new Date(thresholdMillis);
     }
 }
