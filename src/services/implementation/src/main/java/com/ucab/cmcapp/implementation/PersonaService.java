@@ -1,21 +1,15 @@
 package com.ucab.cmcapp.implementation;
 
 import com.ucab.cmcapp.common.entities.Persona;
-import com.ucab.cmcapp.common.entities.User;
 import com.ucab.cmcapp.logic.commands.CommandFactory;
 import com.ucab.cmcapp.logic.commands.persona.atomic.GetPersonaByCedulaCommand;
 import com.ucab.cmcapp.logic.commands.persona.composite.CreatePersonaCommand;
-import com.ucab.cmcapp.logic.commands.user.atomic.GetUserByEmailCommand;
-import com.ucab.cmcapp.logic.commands.user.composite.CreateUserCommand;
-import com.ucab.cmcapp.logic.dtos.PersonaDto;
 import com.ucab.cmcapp.logic.dtos.UserDto;
 import com.ucab.cmcapp.logic.mappers.PersonaMapper;
 
-import com.ucab.cmcapp.logic.mappers.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 

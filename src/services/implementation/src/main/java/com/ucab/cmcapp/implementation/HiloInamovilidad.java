@@ -1,15 +1,18 @@
 package com.ucab.cmcapp.implementation;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.ucab.cmcapp.common.util.FirebaseSender;
+import com.ucab.cmcapp.logic.dtos.UserDto;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class HiloInamovilidad extends Thread {
 
-    private int seconds;
+    public int seconds;
     private boolean condition;
 
-    private String username;
+    public String username;
 
     private UserService userService = new UserService();
 
@@ -39,7 +42,15 @@ public class HiloInamovilidad extends Thread {
                 condition = userService.validarMovimiento(username, seconds);
 
                 if( !condition) {
-                    FirebaseSender.sendMessage("Alerta - Este usuario ha superado el tiempo que puede estar sin moverse", "El siguiente usario ha superado el tiempo que puede estar sin moverse: " + username, tokenAdmin);
+                    try {
+                        UserDto adminDto = userService.getUserByUsername("lebron");
+                        tokenAdmin = adminDto.getImei();
+                        FirebaseSender.sendMessage("Alerta - Este usuario ha superado el tiempo que puede estar sin moverse", "El siguiente usario ha superado el tiempo que puede estar sin moverse: " + username, tokenAdmin);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    } catch (FirebaseMessagingException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
 
                 //Vuelvo a correr el hilo
