@@ -1,5 +1,6 @@
 package com.ucab.cmcapp.implementation;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.ucab.cmcapp.common.EntityFactory;
 import com.ucab.cmcapp.common.entities.*;
 
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -871,15 +873,22 @@ public class UserService extends BaseService
         serviceResponse.setRespuesta(username);
         serviceResponse.setMensaje("No se ha podido enviar la notificación SOS a las autoridades");
 
-        String tokenAdmin = "Epale";
+        String tokenAdmin;
 
         try {
+            UserDto adminDto = getUserByUsername("lebron");
+            tokenAdmin = adminDto.getImei();
+
             FirebaseSender.sendMessage("Alerta Maxima - SOS", "El siguiente usuario ha presionado el boton SOS: " + username, tokenAdmin);
             serviceResponse.setStatus(true);
             serviceResponse.setRespuesta(username);
             serviceResponse.setMensaje("Se ha enviado el SOS correctamente");
         } catch (FirebaseException e) {
             throw new FirebaseException(username);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (FirebaseMessagingException e) {
+            throw new RuntimeException(e);
         }
 
         return serviceResponse;
@@ -895,14 +904,17 @@ public class UserService extends BaseService
         serviceResponse.setRespuesta(username);
         serviceResponse.setMensaje("No se ha podido enviar la alerta de punto de control a las autoridades");
 
-        String tokenAdmin = "Epale";
+        String tokenAdmin;
 
         try {
+            UserDto adminDto = getUserByUsername("lebron");
+            tokenAdmin = adminDto.getImei();
+
             FirebaseSender.sendMessage("Alerta - Tiempo de Control ha llegado a 0", "El siguiente usuario puede que tenga problemas: " + username, tokenAdmin);
             serviceResponse.setStatus(true);
             serviceResponse.setRespuesta(username);
             serviceResponse.setMensaje("Se ha enviado la alerta de tiempo de control correctamente");
-        } catch (FirebaseException e) {
+        } catch (FirebaseException | IOException | FirebaseMessagingException e) {
             throw new FirebaseException(username);
         }
 
@@ -957,8 +969,15 @@ public class UserService extends BaseService
             distanciaBUsers = DistanceCalculator.haversine(coordenadaDtoUno.getLatitud(), coordenadaDtoUno.getLongitud(), coordenadaDtoDos.getLatitud(), coordenadaDtoDos.getLongitud());
 
             if(distanciaBUsers <= monitoreoElectronicoDto.getDistanciaAlejamiento()){
-                firebaseSender.sendMessage("Alerta - La distancia de seguridad esta siendo violada", "La distancia entre tu y el agresor es de: " + distanciaBUsers + " km", userDtoDos.getImei());
-                //Alertar a la web
+                try {
+                    UserDto adminDto = getUserByUsername("lebron");
+                    firebaseSender.sendMessage("Alerta - La distancia de seguridad esta siendo violada", "La distancia entre tu y el agresor es de: " + distanciaBUsers + " km", userDtoDos.getImei());
+                    firebaseSender.sendMessage("Alerta - La distancia de seguridad esta siendo violada", "La distancia entre la victima: " + userDtoDos.getUserName() + " y el agresor: " + userDtoUno.getUserName() + " es de: " + distanciaBUsers + " km", adminDto.getImei());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (FirebaseMessagingException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             if(userDtoReq.getUserTypeDto().getId() == 3){
@@ -975,8 +994,9 @@ public class UserService extends BaseService
                     boolean valido = ZonaSegValidator.isPointInPolygon(latitud, longitud, responseCoord);
 
                     if(valido){
+                        UserDto adminDto = getUserByUsername("lebron");
                         firebaseSender.sendMessage("Alerta - Una zona de seguridad ha sido violada", "El agresor se encuentra dentro de la zona de seguridad: " + zonaDeSeguridadDto.getId(), userDtoDos.getImei());
-                        //Alertar a la web
+                        firebaseSender.sendMessage("Alerta - Una zona de seguridad ha sido violada", "El agresor: " + userDtoUno.getUserName() + " se encuentra dentro de la zona de seguridad: " + zonaDeSeguridadDto.getId(), adminDto.getImei());
                     }
                 }
                 
@@ -985,6 +1005,10 @@ public class UserService extends BaseService
 
         } catch (PosicionamientoException e) {
             throw new PosicionamientoException(username);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (FirebaseMessagingException e) {
+            throw new RuntimeException(e);
         }
 
     }
